@@ -1,0 +1,46 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ---- Node ----
+node_modules/
+web/node_modules/
+web/dist/
+dist/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# ---- Env ----
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ---- Editor / OS ----
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# ---- 本地个人配置，不属于项目本身 ----
+.agents/
+skills-lock.json
+AGENTS.md
+.cursor/
+.omx/
+.reference/
+hermes_conversation_*.json
+
+# ---- 构建与杂项 ----
+logs/
+build/
+target/

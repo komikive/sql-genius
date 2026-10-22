@@ -1,0 +1,66 @@
+# Root-owned Compose file (D-05). Copy `.env.example` to `.env` — never commit real secrets.
+# D-06/D-07: local dev often runs `uv run` on the host with only Postgres in Compose; full stack uses both services.
+
+services:
+  postgres:
+    # pgvector-enabled image (Phase 3+ RAG); aligns with FLOW-05 / pgvector migrations.
+    image: pgvector/pgvector:pg18
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sql_agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sql_agent}
+      POSTGRES_DB: ${POSTGRES_DB:-sql_agent}
+    ports:
+      - "5432:5432"
+    # PG 18+ images expect a single mount at /var/lib/postgresql (data lives in a versioned subdir).
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SQL_AGENT_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sql_agent}:${POSTGRES_PASSWORD:-sql_agent}@postgres:5432/${POSTGRES_DB:-sql_agent}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health').read()",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/ >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+volumes:
+  pgdata:
