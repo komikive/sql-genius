@@ -308,14 +308,11 @@ Hermes 给你的启发主要有三个：
 
 如果你接下来要继续理解项目，建议按这个顺序读：
 
-1. `AGENTS.md`
-   - 看当前 repo 状态、演示路径、验证命令
-
-2. `docs/agent-architecture-reference.md`
+1. `docs/agent-architecture-reference.md`
    - 看 deepagents / hermes 给你的架构启发
 
-3. `docs/skill-studio-rollout.md`
+2. `docs/skill-studio-rollout.md`
    - 看从旧架构迁移到当前 datasource-centered 架构的历史脉络
 
-4. `docs/lab-databases-overview.md`
+3. `docs/lab-databases-overview.md`
    - 看三个演示数据库的业务语义和表关系
